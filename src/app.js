@@ -1,16 +1,13 @@
-(function() {
+(function () {
     "use strict";
 
     var doubleClickTimeout = null;
-    var timer = {
-        interval: null,
-        isPaused: false,
-        pauseTime: 0,
-        value: 0,
-    };
+    var timer;
 
+    var $body;
     var $difficulty;
     var $replay;
+    var $timer;
     var $resumePause;
     var $grid;
 
@@ -22,18 +19,28 @@
         $replay = document.querySelector('#replay')
         $replay.addEventListener('click', onReplay);
 
+        $timer = document.getElementById('time');
+
         $resumePause = document.querySelector('#resume-pause');
         $resumePause.addEventListener('click', onResumePause);
 
-        // ---- SEPARATE HERE ---- //
+        bootstrap();
+    }
 
-        $grid = document.createElement('div');
+    function bootstrap() {
+        timer = {
+            interval: null,
+            isPaused: false,
+            pauseTime: 0,
+            value: 0,
+        };
 
         var difficulty = $difficulty.options[$difficulty.selectedIndex].value;
         var grid = createNewGame(difficulty);
         grid.onGameOver(getOnGameEndCallback('Perdu'));
         grid.onGameFinished(getOnGameEndCallback('Gagné !'));
 
+        $grid = document.createElement('div');
         createDOMGrid(grid, $grid);
         updateDOMGrid(grid, $grid);
     }
@@ -50,13 +57,20 @@
         $replay.removeAttribute('disabled');
     }
 
-    function onDifficultyChange() {
+    function onDifficultyChange() {
         $replay.removeAttribute('disabled');
     }
 
     function onReplay() {
-        $grid.parentNode.removeChild($grid);
-        onload();
+        $body.removeChild($grid);
+        $grid = null;
+
+        if ($resumePause.hasAttribute('disabled')) { $resumePause.removeAttribute('disabled'); }
+
+        timer.value = Date.now();
+        timerInterval();
+
+        bootstrap();
     }
 
     function onResumePause() {
@@ -75,7 +89,7 @@
             $result.textContent = message;
 
             if ($replay.hasAttribute('disabled')) { $replay.removeAttribute('disabled'); }
-            $resumePause.parentNode.removeChild($resumePause);
+            if (!$resumePause.hasAttribute('disabled')) { $resumePause.setAttribute('disabled', 'disabled'); }
 
             pauseTimer();
             clearTimer();
@@ -111,10 +125,10 @@
                 $cell.appendChild(document.createElement('span'));
 
                 // Register an event listener when the user clicks on a cell.
-                (function(i, j) {
+                (function (i, j) {
                     $cell.addEventListener('click', function onClick() {
                         if (doubleClickTimeout === null) {
-                            doubleClickTimeout = setTimeout(function() {
+                            doubleClickTimeout = setTimeout(function () {
                                 simpleClick(i, j);
                             }, 250);
                         } else {
@@ -166,7 +180,7 @@
         }
 
         $grid.classList.add('mines-grid');
-        var $body = document.getElementsByTagName('body')[0];
+        $body = document.getElementsByTagName('body')[0];
 
         // Actually adding the grid's object model into the DOM.
         $body.appendChild($grid);
@@ -198,6 +212,8 @@
 
 
 
+    // TODO: Extract the timer.
+
     function startTimer() {
         timer.value = Date.now();
         timer.interval = setInterval(timerInterval, 100);
@@ -220,7 +236,6 @@
     }
 
     function timerInterval() {
-        var $timer = document.getElementById('time');
         var diff = new Date(Date.now() - timer.value);
         $timer.textContent = diff.getMinutes() + ':' + pad(diff.getSeconds());
     }

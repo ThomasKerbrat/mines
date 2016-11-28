@@ -5,7 +5,7 @@ Grid.GAME_ALIVE = 'GAME_ALIVE';
 
 /**
  * Grid constructor function.
- * Initialize the board with random Mines, about 10% of the cells.
+ * Initialize the board with random Mines for the given dimensions and mine rate.
  * @param {number} height The Grid's desired height.
  * @param {number} width The Grid's desired width.
  * @param {number} rate A number between 5 and 25 to indicate the probability of a cell to be a Mine.
