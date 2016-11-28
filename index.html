@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Mines</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="src/app.css">
+        <script src="src/grid.js"></script>
+        <script src="src/app.js"></script>
+    </head>
+    <body>
+        <h1>Démineur</h1>
+        <div class="actions">
+            <select id="difficulty">
+                <option value="easy">Facile</option>
+                <option value="medium">Moyen</option>
+                <option value="hard">Difficile</option>
+            </select>
+            <button id="replay" disabled>Rejouer</button>
+        </div>
+        <div class="actions">
+            <span id="result"></span>
+            <span id="time">-:--</span>
+            <button id="resume-pause" disabled>Pause</button>
+        </div>
+    </body>
+</html>

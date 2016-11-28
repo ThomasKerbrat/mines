@@ -1,0 +1,37 @@
+* {
+    font-family: Consolas, monospace;
+    text-align: center;
+    /*font-size: 25px;*/
+}
+
+.cell {
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    cursor: default;
+    border-top: 1px solid gray;
+    border-left: 1px solid gray;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.mines-grid {
+    display: inline-block;
+    border-bottom: 1px solid gray;
+    border-right: 1px solid gray;
+}
+
+.cover {
+    cursor: pointer;
+    background-color: lightgray;
+    color: lightgray;
+}
+
+.flag {
+    color: red;
+    cursor: default;
+}
+
+.actions {
+    margin: 1em 0;
+}
