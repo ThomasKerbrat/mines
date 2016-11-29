@@ -13,6 +13,8 @@ $ git clone https://github.com/ThomasKerbrat/mines
 $ open index.html
 ```
 
+You can also access this repository GitHub Pages: [thomaskerbrat.github.io/mines](https://thomaskerbrat.github.io/mines)
+
 This is what it should look like when you finished a game :
 
 ![A finished Mines grid](docs/finished-mines-grid.png)
