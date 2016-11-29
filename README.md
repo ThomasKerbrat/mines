@@ -15,4 +15,4 @@ $ open index.html
 
 This is what it should look like when you finished a game :
 
-![A finished Mines grid](doc/finished-mines-grid.png)
+![A finished Mines grid](docs/finished-mines-grid.png)
