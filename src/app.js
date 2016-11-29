@@ -2,13 +2,17 @@
     "use strict";
 
     var doubleClickTimeout = null;
-    var timer;
+    var timer = null;
 
     var $body;
+
     var $difficulty;
     var $replay;
-    var $timer;
+
+    var $result;
+    var $time;
     var $resumePause;
+
     var $grid;
 
     window.onload = onload;
@@ -16,25 +20,21 @@
         $difficulty = document.getElementById('difficulty');
         $difficulty.addEventListener('change', onDifficultyChange);
 
-        $replay = document.querySelector('#replay')
+        $replay = document.getElementById('replay')
         $replay.addEventListener('click', onReplay);
 
-        $timer = document.getElementById('time');
+        $result = document.getElementById('result');
+        $time = document.getElementById('time');
 
-        $resumePause = document.querySelector('#resume-pause');
-        $resumePause.addEventListener('click', onResumePause);
+        $resumePause = document.getElementById('resume-pause');
+        $resumePause.addEventListener('click', function () {
+            onResumePause();
+        });
 
         bootstrap();
     }
 
     function bootstrap() {
-        timer = {
-            interval: null,
-            isPaused: false,
-            pauseTime: 0,
-            value: 0,
-        };
-
         var difficulty = $difficulty.options[$difficulty.selectedIndex].value;
         var grid = createNewGame(difficulty);
         grid.onGameOver(getOnGameEndCallback('Perdu'));
@@ -48,12 +48,11 @@
 
 
     function onFirstClick() {
-        startTimer();
+        timer = new Timer();
+        timer.onSecondChange(updateTimer);
+        timer.start();
 
-        if ($resumePause.hasAttribute('disabled')) {
-            $resumePause.removeAttribute('disabled');
-        }
-
+        if ($resumePause.hasAttribute('disabled')) { $resumePause.removeAttribute('disabled'); }
         $replay.removeAttribute('disabled');
     }
 
@@ -65,34 +64,32 @@
         $body.removeChild($grid);
         $grid = null;
 
-        if ($resumePause.hasAttribute('disabled')) { $resumePause.removeAttribute('disabled'); }
+        $result.textContent = '';
 
-        timer.value = Date.now();
-        timerInterval();
+        timer = null;
+        $time.textContent = '-:--';
 
         bootstrap();
     }
 
     function onResumePause() {
         if (timer.isPaused) {
-            resumeTimer();
+            timer.resume();
             $resumePause.textContent = 'Pause';
         } else {
-            pauseTimer();
+            timer.pause();
             $resumePause.textContent = 'Continuer';
         }
     }
 
     function getOnGameEndCallback(message) {
         return function onGameEnd() {
-            var $result = document.querySelector('#result');
             $result.textContent = message;
 
             if ($replay.hasAttribute('disabled')) { $replay.removeAttribute('disabled'); }
             if (!$resumePause.hasAttribute('disabled')) { $resumePause.setAttribute('disabled', 'disabled'); }
 
-            pauseTimer();
-            clearTimer();
+            timer.pause();
         }
     }
 
@@ -101,9 +98,9 @@
     function createNewGame(difficulty) {
         switch (difficulty) {
             default:
-            case 'easy': return new Grid(10, 10, 10);
-            case 'medium': return new Grid(15, 15, 15);
-            case 'hard': return new Grid(25, 25, 20);
+            case 'easy': return new Grid(10, 10, 5);
+            case 'medium': return new Grid(15, 15, 10);
+            case 'hard': return new Grid(25, 25, 15);
         }
     }
 
@@ -130,18 +127,19 @@
                         if (doubleClickTimeout === null) {
                             doubleClickTimeout = setTimeout(function () {
                                 simpleClick(i, j);
-                            }, 250);
+                            }, 200);
                         } else {
                             clearTimeout(doubleClickTimeout);
                             doubleClick();
                         }
 
                         function simpleClick(i, j, options) {
-                            if (grid.status === Grid.GAME_OVER || timer.isPaused) { return; }
-                            if (timer.value === 0) { onFirstClick(); }
+                            if (grid.status === Grid.GAME_OVER) { return; }
+                            if (timer === null) { onFirstClick(); }
+                            if (timer.isPaused === true) { return; }
                             doubleClickTimeout = null;
                             grid.play(i, j);
-                            if (!(options && options.skipUpdate === true)) {
+                            if (!options || options.skipUpdate === false) {
                                 updateDOMGrid(grid, $grid);
                             }
                         }
@@ -164,7 +162,7 @@
 
                     $cell.addEventListener('contextmenu', function onContextmenu(event) {
                         if (grid.status === Grid.GAME_OVER || timer.isPaused) { return; }
-                        if (timer.value === 0) { onFirstClick(); }
+                        if (timer === null) { onFirstClick(); }
                         event.preventDefault();
                         grid.toggleFlag(i, j);
                         updateDOMGrid(grid, $grid);
@@ -210,34 +208,8 @@
         }
     }
 
-
-
-    // TODO: Extract the timer.
-
-    function startTimer() {
-        timer.value = Date.now();
-        timer.interval = setInterval(timerInterval, 100);
-    }
-
-    function pauseTimer() {
-        timer.isPaused = true;
-        timer.pauseTime = Date.now();
-        clearInterval(timer.interval);
-    }
-
-    function resumeTimer() {
-        timer.isPaused = false;
-        timer.value += Date.now() - timer.pauseTime;
-        timer.interval = setInterval(timerInterval, 100);
-    }
-
-    function clearTimer() {
-        clearInterval(timer.interval);
-    }
-
-    function timerInterval() {
-        var diff = new Date(Date.now() - timer.value);
-        $timer.textContent = diff.getMinutes() + ':' + pad(diff.getSeconds());
+    function updateTimer(diff) {
+        $time.textContent = diff.getMinutes() + ':' + pad(diff.getSeconds());
     }
 
 
