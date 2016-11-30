@@ -39,6 +39,10 @@ Timer.prototype.resume = function resume() {
     this.value += Date.now() - this._pauseTime;
 };
 
+Timer.prototype.stop = function stop() {
+    clearInterval(this._interval);
+}
+
 Timer.prototype.onSecondChange = function onSecondChange(callback) {
     if (typeof callback !== 'function') { throw new TypeError('callback must be a function'); }
     this.onSecondChangeCallback = callback;

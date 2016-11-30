@@ -64,8 +64,13 @@
         $body.removeChild($grid);
         $grid = null;
 
+        $replay.setAttribute('disabled', 'disabled');
+        $resumePause.textContent = 'Pause';
+        $resumePause.setAttribute('disabled', 'disabled');
+
         $result.textContent = '';
 
+        timer.stop();
         timer = null;
         $time.textContent = '-:--';
 
